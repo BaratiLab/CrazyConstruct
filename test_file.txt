@@ -1,0 +1,1 @@
+This is a test file that I created in VS Code on my Mac and added to the CrazyConstruct directory by ssh into the Pi. Looking to see if it appears on the repository after I commit it. 
