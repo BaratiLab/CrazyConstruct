@@ -11,8 +11,6 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils import uri_helper
-from data_collector.crazyflie_battery_logger import CrazyflieBatteryLogger, SimpleLogger
-from data_collector.crazyflie_state_logger import CrazyflieStateLogger
 
 ###################### Purpose of Script ####################################################
 '''
@@ -85,7 +83,7 @@ Definition: This picks up the block and slowly lowers the drone
 @param: block_set_velocity:
 '''
 def pickup_block(commander, block_location_set, block_location, block_set_velocity):
-    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2])
+    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2],0.1)
     time.sleep(2)
     commander.go_to(block_location[0],block_location[1],block_location[2], block_set_velocity)
     time.sleep(3)
@@ -98,16 +96,25 @@ def pickup_block(commander, block_location_set, block_location, block_set_veloci
 Definition: This drops of the block at a location
 @param: Slowly lowers the block at the drop off location.
 '''
-def dropoff_block(commander):
-    pass
+def dropoff_block(commander, block_location_set, block_location, block_set_velocity):
+    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2],0.1)
+    time.sleep(2)
+    commander.go_to(block_location[0],block_location[1],block_location[2], block_set_velocity)
+    time.sleep(1)
+    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2], block_set_velocity)
+    time.sleep(1)
 
 
 
-def move_block(commander, block_location_set, block_location, flight_velocities):
+def move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities):
     takeoff_go_to(commander)
     pickup_block(commander, block_location_set, block_location, flight_velocities[0])
-    goto_randompoint(commander, flight_velocities[1])
-    time.sleep(20)
+    #goto_randompoint(commander, flight_velocities[1])
+    commander.go_to(0.5,0.5,0.6,flight_velocities[1])
+    time.sleep(4)
+    dropoff_block(commander, dropoff_location_set, dropoff_location, flight_velocities[0])
+    commander.go_to(0.5,0.5,0.6,flight_velocities[1])
+    time.sleep(2)
     land_ground(commander, LAND_VELOCITY)
 
 
@@ -121,8 +128,10 @@ TAKEOFF_VELOCITY = 0.2
 LAND_VELOCITY = 0.1
 num_cycles = 3
 charging_pad_loc = [0.6,0.46]
-block_location_set = [0,0.25,0.09]
-block_location = [0,0.25,0.065]
+block_location_set = [0,0.25,0.1]
+block_location = [0,0.25,0.04]
+dropoff_location_set = [0,0.35,0.1]
+dropoff_location = [0,0.35,0.04]
 flight_velocities = [0.05, 0.2]
 deck_attached_event = Event()
 logged_data = []
@@ -144,5 +153,5 @@ if __name__ == '__main__':
         commander = PositionHlCommander(scf)
         #direct_fly_charging_pad(commander, charging_pad_loc, TAKEOFF_HEIGHT, TAKEOFF_VELOCITY, LAND_VELOCITY)
         time.sleep(2)
-        move_block(commander, block_location_set, block_location, flight_velocities)
+        move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities)
 
