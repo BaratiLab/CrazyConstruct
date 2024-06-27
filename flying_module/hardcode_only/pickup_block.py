@@ -46,10 +46,10 @@ Input params:
 @param: scf - 
 @param: TAKEOFF_HEIGHT - The height to take off to.
 '''
-def takeoff_go_to(commander, TAKEOFF_HEIGHT=1.0, TAKEOFF_VELOCITY=0.2):
+def takeoff_go_to(commander, TAKEOFF_HEIGHT=0.5, TAKEOFF_VELOCITY=0.2):
     commander.take_off(TAKEOFF_HEIGHT, TAKEOFF_VELOCITY)
     time.sleep(2)
-    commander.go_to(0,0,1.0)
+    commander.go_to(0,0,0.5)
     time.sleep(2)
 
 '''
@@ -74,6 +74,7 @@ Input params:
 @param: LAND_VELOCITY - The speed to land at.
 '''
 def land_ground(commander, LAND_VELOCITY):
+    commander.go_to(0.5,0.5,0.5,0.3)
     commander.land(LAND_VELOCITY)
 
 '''
@@ -110,10 +111,9 @@ def move_block(commander, block_location_set, block_location, dropoff_location_s
     takeoff_go_to(commander)
     pickup_block(commander, block_location_set, block_location, flight_velocities[0])
     #goto_randompoint(commander, flight_velocities[1])
-    commander.go_to(0.5,0.5,0.6,flight_velocities[1])
+    commander.go_to(0,0,0.75,flight_velocities[1])
     time.sleep(4)
     dropoff_block(commander, dropoff_location_set, dropoff_location, flight_velocities[0])
-    commander.go_to(0.5,0.5,0.6,flight_velocities[1])
     time.sleep(2)
     land_ground(commander, LAND_VELOCITY)
 
@@ -127,11 +127,11 @@ TAKEOFF_HEIGHT = 0.5
 TAKEOFF_VELOCITY = 0.2
 LAND_VELOCITY = 0.1
 num_cycles = 3
-charging_pad_loc = [0.6,0.46]
-block_location_set = [0,0.25,0.1]
-block_location = [0,0.25,0.04]
-dropoff_location_set = [0,0.35,0.1]
-dropoff_location = [0,0.35,0.04]
+charging_pad_loc = [0.6,0.46] #landing point 
+block_location_set = [-0.15,0.15,0.1] 
+block_location = [-0.15,0.15,0.03]
+dropoff_location_set = [-0.15,0.25,0.1]
+dropoff_location = [-0.15,0.25,0.03]
 flight_velocities = [0.05, 0.2]
 deck_attached_event = Event()
 logged_data = []
