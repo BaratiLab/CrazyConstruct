@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 from lucaskanadetracker import LucasKanadeTracker
-import tracking_helper_functions
+import vision_module.vision_tracking_utils as vision_tracking_utils
 from pickup_detector import PickupDetector
 
 ###################### Purpose of Script ####################################################
@@ -79,13 +79,9 @@ class InFrameBlockTracker:
                 # Track and mask the movement within each bounding box
                 for obj_id, tracker in self.trackers.items():
                     frame = tracker.track(frame)
-                    total_horizontal, total_vertical = tracker.get_total_displacement()
-                    if self.pickup_detector.is_picked_up(total_vertical, total_horizontal):
-                        print(f"Block {obj_id} picked up!")
-                        s
             # Draw bounding boxes and labels on the frame if there are any boxes
             if len(boxes) > 0:
-                frame = tracking_helper_functions.draw_boxes(frame, boxes, self.model)
+                frame = vision_tracking_utils.draw_boxes(frame, boxes, self.model)
 
             # Display the frame
             cv2.imshow('YOLOv5 Detection', frame)
@@ -96,6 +92,12 @@ class InFrameBlockTracker:
         # Release resources
         self.cap.release()
         cv2.destroyAllWindows()
+    
+    def get_trackers(self):
+        return self.trackers
+
+    def get_frame(self):
+        return self.frame
 
 
 def main():
