@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 from lucaskanadetracker import LucasKanadeTracker
-import vision_module.vision_tracking_utils as vision_tracking_utils
+import vision_tracking_utils
 from pickup_detector import PickupDetector
 
 ###################### Purpose of Script ####################################################
@@ -20,6 +20,7 @@ class InFrameBlockTracker:
         self.frame_count = 0
         self.initialized = False
         self.pickup_detector = PickupDetector()
+        self.frame = None
 
     def initialize_trackers(self, frame, boxes):
         '''
@@ -60,12 +61,12 @@ class InFrameBlockTracker:
         N/A
         '''
         while self.cap.isOpened():
-            ret, frame = self.cap.read()
+            ret, self.frame = self.cap.read()
             if not ret:
                 break
 
             # Perform inference
-            results = self.model.track(frame)[0]
+            results = self.model.track(self.frame)[0]
 
             # Extract bounding boxes
             if results.boxes is not None:
@@ -75,16 +76,16 @@ class InFrameBlockTracker:
                 boxes = []
                 #ids = []
             if boxes.id is not None:
-                self.initialize_trackers(frame, boxes)
+                self.initialize_trackers(self.frame, boxes)
                 # Track and mask the movement within each bounding box
                 for obj_id, tracker in self.trackers.items():
-                    frame = tracker.track(frame)
+                    self.frame = tracker.track(self.frame)
             # Draw bounding boxes and labels on the frame if there are any boxes
             if len(boxes) > 0:
-                frame = vision_tracking_utils.draw_boxes(frame, boxes, self.model)
+                self.frame = vision_tracking_utils.draw_boxes(self.frame, boxes, self.model)
 
             # Display the frame
-            cv2.imshow('YOLOv5 Detection', frame)
+            cv2.imshow('YOLOv5 Detection', self.frame)
             # Break loop on 'q' key press
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

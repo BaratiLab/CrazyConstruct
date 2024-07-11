@@ -10,15 +10,17 @@ import random
 from threading import Event, Thread
 
 import flying_utils_hardcode
-
+'''
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils import uri_helper
+'''
 # Add vision_module to the system path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vision_module'))
+vision_module_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'vision_module'))
+sys.path.append(vision_module_path)
 
 from vision_interface import VisionInterface
 
@@ -40,7 +42,7 @@ Input Params:
 
 Ouput Params:
 None
-'''
+
 def param_deck_lighthouse(_, value_str):
     value = int(value_str)
     if value:
@@ -48,7 +50,7 @@ def param_deck_lighthouse(_, value_str):
         print('Deck is attached!')
     else:
         print('Deck is NOT attached!')
-
+'''
 def move_block(vision_interface, commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities):
     flying_utils_hardcode.takeoff_go_to(commander)
     while not vision_interface.get_pickup_status():
@@ -71,9 +73,10 @@ def main():
     model_path = r'C:/Users/aksha/OneDrive/Desktop/Desktop/Spring 2024/Research/CrazyConstruct/vision_module/best.pt'  # Path to your YOLO model
     vision_interface = VisionInterface(model_path)
     # Start the vision processing in a background thread
+    vision_background(vision_interface)
     vision_thread = Thread(target=vision_background, args=(vision_interface,))
     vision_thread.start()
-
+    '''
     URI = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
 
     
@@ -99,6 +102,7 @@ def main():
         #direct_fly_charging_pad(commander, charging_pad_loc, TAKEOFF_HEIGHT, TAKEOFF_VELOCITY, LAND_VELOCITY)
         time.sleep(2)
         move_block(vision_interface, commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities)
+    '''
     vision_interface.scene_processor.cap.release()
     cv2.destroyAllWindows()
 
