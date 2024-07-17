@@ -5,25 +5,10 @@ import numpy as np
 index = 1
 found = False
 
-# Check indices from 0 to 10
-for i in range(1,10):
-    cap = cv2.VideoCapture(i)
-    if cap.isOpened():
-        ret, frame = cap.read()
-        if ret:
-            index = i
-            found = True
-            break
-        cap.release()
-
-if not found:
-    print("Error: Could not find any camera.")
-    exit()
-
 print(f"Using camera index: {index}")
 
 # Open a connection to the USB camera (replace 1 with the correct index for your USB camera)
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 # Check if the camera opened successfully
 if not cap.isOpened():

@@ -34,10 +34,10 @@ while True:
 
     # Undistort the frame
     undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs, None, new_camera_matrix)
-    print(np.shape(undistorted_frame))
+    #print(np.shape(undistorted_frame))
     # Crop the image based on the ROI
-    #x, y, w, h = roi
-    #undistorted_frame = undistorted_frame[y:y+h, x:x+w]
+    x, y, w, h = roi
+    undistorted_frame = undistorted_frame[y:y+h, x:x+w]
     
 
     # Display the frame with detections

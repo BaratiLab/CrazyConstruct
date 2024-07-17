@@ -12,14 +12,16 @@ def detect_apriltags_from_video():
         return
 
     # Define camera parameters (you need to calibrate your camera to get these values)
-    camera_matrix = np.array([[600, 0, 320], [0, 600, 240], [0, 0, 1]], dtype="double")
-    dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
+    calibration_data = np.load("calibration_data.npy", allow_pickle=True).item()
+    camera_matrix = np.array(calibration_data["camera_matrix"])
+    dist_coeffs = np.array(calibration_data["dist_coeffs"])
 
     # Define the size of the AprilTag (in meters)
-    tag_size = 0.1  # Example: 10 cm
+    tag_size = 0.017  # Example: 10 cm
 
     # Create the AprilTag detector
-    detector = apriltag.Detector()
+    options = apriltag.DetectorOptions(families="tag36h11,tag25h9,tag16h5")
+    detector = apriltag.Detector(options)
 
     while True:
         # Capture frame-by-frame

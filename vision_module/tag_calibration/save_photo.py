@@ -2,7 +2,7 @@ import cv2
 import os
 
 # Define the directory where you want to save the photos
-save_directory = r"C:/Users/aksha/OneDrive/Desktop/Desktop/Spring 2024/Research/CrazyConstruct/vision_module/tag_calibration/photos"
+save_directory = r"/home/akshayraman/Documents/CrazyConstruct/vision_module/tag_calibration/photos"
 if not os.path.exists(save_directory):
     os.makedirs(save_directory)
 

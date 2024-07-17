@@ -16,13 +16,14 @@ objpoints = []  # 3D points in real world space
 imgpoints = []  # 2D points in image plane
 
 # Read all images for calibration (supports .jpg and .png)
-image_files = glob.glob('C:/Users/aksha/OneDrive/Desktop/Desktop/Spring 2024/Research/CrazyConstruct/vision_module/tag_calibration/photos/*.png')
+image_files = glob.glob('/home/akshayraman/Documents/CrazyConstruct/vision_module/tag_calibration/photos/*.png')
 
 if len(image_files) == 0:
     print("No calibration images found.")
     exit()
-
+im_count = 1
 for image_file in image_files:
+    print(f"Images Read: {im_count}")
     img = cv2.imread(image_file)
     if img is None:
         print(f"Error reading image: {image_file}")
@@ -47,11 +48,12 @@ for image_file in image_files:
         imgpoints.append(corners2)
 
         # Draw and display the corners
-        cv2.drawChessboardCorners(img, checkerboard_size, corners2, ret)
-        cv2.imshow('Image', img)
-        cv2.waitKey(500)
+        #cv2.drawChessboardCorners(img, checkerboard_size, corners2, ret)
+        #cv2.imshow('Image', img)
+        #cv2.waitKey(10)
     else:
         print(f"Checkerboard not detected in image: {image_file}")
+    im_count = im_count+1
 
 cv2.destroyAllWindows()
 

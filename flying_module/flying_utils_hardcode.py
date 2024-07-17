@@ -18,6 +18,26 @@ Input params:
 @param: scf - 
 @param: TAKEOFF_HEIGHT - The height to take off to.
 '''
+def is_complete(status):
+    while True:
+        user_input = input("Enter 'yes' or 'no': ").strip().lower()
+        if user_input == 'yes' or user_input == 'no':
+            break
+        else:
+            print("Invalid input. Please enter 'yes' or 'no'.")
+    if user_input == 'yes':
+        status = True
+    else:
+        status = False
+    return status
+
+'''
+Definition: Take off from any location and go to specified location.
+
+Input params:
+@param: scf - 
+@param: TAKEOFF_HEIGHT - The height to take off to.
+'''
 def takeoff_go_to(commander, TAKEOFF_HEIGHT=0.5, TAKEOFF_VELOCITY=0.2):
     commander.take_off(TAKEOFF_HEIGHT, TAKEOFF_VELOCITY)
     time.sleep(2)
@@ -75,3 +95,18 @@ def dropoff_block(commander, block_location_set, block_location, block_set_veloc
     time.sleep(1)
     commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2], block_set_velocity)
     time.sleep(1)
+
+
+def move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities):
+    pickup_status = False
+    dropoff_status = False
+    while not pickup_status:
+        pickup_block(commander, block_location_set, block_location, flight_velocities[0])
+        pickup_status = is_complete(pickup_status)
+    #goto_randompoint(commander, flight_velocities[1])
+    commander.go_to(0,0,0.4,flight_velocities[1])
+    time.sleep(1)
+    while not dropoff_status:
+        dropoff_block(commander, dropoff_location_set, dropoff_location, flight_velocities[0])
+        dropoff_status = is_complete(dropoff_status)
+    time.sleep(2)
