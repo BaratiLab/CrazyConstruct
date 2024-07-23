@@ -54,16 +54,20 @@ def get_coords(design):
     coordinates = design['Coordinates']
     return title, coordinates
 
-def build_design(commander, block_location_set, block_location, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities):
+def build_design(commander, block_location_set_height, block_location_height, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities):
     flying_utils_hardcode.takeoff_go_to(commander)
+    print(drop_off_positions)
     for i in range(len(drop_off_positions)):
         drone_position = get_xy(drop_off_positions[i])
+        pickup_location = get_xy(pickup_location_array[i])
+        block_location_set = [pickup_location[0], -pickup_location[1], block_location_set_height]
+        block_location = [pickup_location[0], -pickup_location[1], block_location_height]
         dropoff_location_set = [drone_position[0], drone_position[1], dropoff_set_height]
         dropoff_location = [drone_position[0], drone_position[1], dropoff_height]
         flying_utils_hardcode.move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities)
     flying_utils_hardcode.land_ground(commander, LAND_VELOCITY)
 
-def prompt_and_build(commander, block_location_set, block_location, dropoff_set_height, dropoff_height, flight_velocities):
+def prompt_and_build(commander, block_location_set, block_location, pickup_location_array, dropoff_set_height, dropoff_height, flight_velocities):
     client = llm_manager.load_api_key()
     prompt = llm_manager.create_prompt()
     response_text = llm_manager.send_and_receive_prompt(client, prompt)
@@ -71,7 +75,8 @@ def prompt_and_build(commander, block_location_set, block_location, dropoff_set_
     data = json.loads(response_text)
     for design in data['Designs']:
         title, drop_off_positions = get_coords(design)
-        build_design(commander, block_location_set, block_location, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities)
+        print(title)
+        build_design(commander, block_location_set, block_location, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities)
 
 
 
@@ -84,8 +89,9 @@ TAKEOFF_VELOCITY = 0.2
 LAND_VELOCITY = 0.1
 num_cycles = 3
 charging_pad_loc = [0.6,0.46] #landing point 
-block_location_set = [0.30,0.16,0.1] 
-block_location = [0.30,0.16,0.03]
+block_location_set = 0.1 
+block_location = 0.03
+pickup_location_array = [(0,0),(2,0),(4,0),(0,1),(2,1),(4,1),(0,2),(2,2),(4,2),(0,3),(2,3),(4,3),(0,4),(2,4),(4,4)]
 dropoff_set_height = 0.15
 dropoff_height = 0.03
 flight_velocities = [0.05, 0.2]
@@ -114,4 +120,4 @@ if __name__ == '__main__':
         commander = PositionHlCommander(scf)
         #direct_fly_charging_pad(commander, charging_pad_loc, TAKEOFF_HEIGHT, TAKEOFF_VELOCITY, LAND_VELOCITY)
         time.sleep(2)
-        prompt_and_build(commander, block_location_set, block_location, dropoff_set_height, dropoff_height, flight_velocities)
+        prompt_and_build(commander, block_location_set, block_location, pickup_location_array, dropoff_set_height, dropoff_height, flight_velocities)

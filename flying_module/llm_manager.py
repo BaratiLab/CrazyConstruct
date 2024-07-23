@@ -51,9 +51,9 @@ def plot_coordinates(title, list_of_coordinates):
 def load_api_key():
     # Specify the path to the .env file
     env_path = Path(r'C:\Users\CrazyFlie\Documents\Nonuploadable_Git\.env')
-
+    lab_env_path = Path(r'/home/crazyflie/Documents/MAIL_projects/env')
     # Load the .env file
-    load_dotenv(dotenv_path=env_path)
+    load_dotenv(dotenv_path=lab_env_path)
 
     # Get the OpenAI API key from environment variables
     api_key = os.getenv("OPENAI_API_KEY")
@@ -66,23 +66,19 @@ def load_api_key():
 def create_prompt():
     prompt = """
     A drone us being used to place building blocks on a grid.
-    You are being asked to come up with the drop off locations for the drone that create a specified design. 
-    The origin of the grid is [0,0] in the bottom left corner and the last point is [24,24] in the top right.
-    The X axis goes from [0,0] to [24,0]. The Y axis goes from [0,0] to [0,24].
-    Make sure none of your points exceed the [24,24] index limit. If they do, fix the design.
+    You are being asked to come up with the drop off locations for the drone that create a specified design.
+    The origin of the grid is [0,0] in the bottom left corner and the last point is [5,5] in the top right.
+    The X axis goes from [0,0] to [5,0]. The Y axis goes from [0,0] to [0,5].
+    Make sure none of your points exceed the [5,5] index limit. If they do, fix the design.
     Only Integers are allowed.
-
-    Please provide the Title and Coordinates in correct JSON format for the Design of the word "HELLO".
-    Make sure your design makes sense and would be legible. Since it is a word, humans read from left to right.
-    You can provide a seperate design for each letter, but when built on the same grid they should form the specified design.
-    Make sure the letters are not upside down or backwards otherwise it won't be legible. 
+    Please provide the Title and Coordinates in correct JSON format for the Design of the letter "H".
+    The Coordinates should be given in the specific order you would want them executed.
+    Make sure your design makes sense and would be legible.
     Make sure the design is legible by thinking step by step as you choose points.
-    Check the design before confirming it, such as for legibility and index limit of 24. 
+    Check the design before confirming it, such as for legibility and index limit of 5.
     If it is wrong, redo the design and then recheck until you find no errors using a step by step approach.
-    Only return the JSON as I need to parse it with Python. Do not include any other text or symbols.
-
+    Only return the JSON in the strucuture provided as it needs to be parsed with Python. Do not include any other text or symbols.
     Please use the following structure:
-
     {
         "Designs": [
             {
@@ -90,7 +86,8 @@ def create_prompt():
                 "Coordinates": [
                     [x, y],
                     [x, y]
-                ]
+                ],
+                "Reasoning": "Your textual reseasoning here"
         }
         ]
     }
