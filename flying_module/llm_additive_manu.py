@@ -91,14 +91,14 @@ num_cycles = 3
 charging_pad_loc = [0.6,0.46] #landing point 
 block_location_set = 0.1 
 block_location = 0.03
-pickup_location_array = [(0,0),(2,0),(4,0),(0,1),(2,1),(4,1),(0,2),(2,2),(4,2),(0,3),(2,3),(4,3),(0,4),(2,4),(4,4)]
+pickup_location_array = [(0,0),(0,2),(0,4),(1,0),(1,2),(1,4),(2,0),(2,2),(2,4),(3,0),(3,2),(3,4),(4,0),(4,2),(4,4)]
 dropoff_set_height = 0.15
 dropoff_height = 0.03
 flight_velocities = [0.05, 0.2]
 deck_attached_event = Event()
 logged_data = []
 Home_Location = (0, 0, 0)
-x0_y0 = (203.20, 254)  # X and Y in millimeters from (0,0,0) to the corner of the drop pad
+x0_y0 = (203.20, 158.75)  # X and Y in millimeters from (0,0,0) to the corner of the drop pad
 x1_y1 = (9.525, 9.525) # X and Y in millimeters from pad corner to center of first dropoff point
 solidoworks_measurement = 19.05  # distance from center to center of drop locations in millimeters
 

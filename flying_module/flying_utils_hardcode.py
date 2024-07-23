@@ -104,7 +104,7 @@ def move_block(commander, block_location_set, block_location, dropoff_location_s
         pickup_block(commander, block_location_set, block_location, flight_velocities[0])
         pickup_status = is_complete(pickup_status)
     #goto_randompoint(commander, flight_velocities[1])
-    commander.go_to(0,0,0.4,flight_velocities[1])
+    commander.go_to(0.5,0,0.4,flight_velocities[1])
     time.sleep(1)
     while not dropoff_status:
         dropoff_block(commander, dropoff_location_set, dropoff_location, flight_velocities[0])
