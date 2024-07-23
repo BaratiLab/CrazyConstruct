@@ -20,7 +20,7 @@ def detect_apriltags_from_video():
     tag_size = 0.017  # Example: 10 cm
 
     # Create the AprilTag detector
-    options = apriltag.DetectorOptions(families="tag36h11,tag25h9,tag16h5")
+    options = apriltag.DetectorOptions(families="tag36h11")
     detector = apriltag.Detector(options)
 
     while True:
