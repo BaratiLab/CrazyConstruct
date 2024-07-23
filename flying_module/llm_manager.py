@@ -71,7 +71,7 @@ def create_prompt():
     The X axis goes from [0,0] to [5,0]. The Y axis goes from [0,0] to [0,5].
     Make sure none of your points exceed the [5,5] index limit. If they do, fix the design.
     Only Integers are allowed.
-    Please provide the Title and Coordinates in correct JSON format for the Design of the letter "H".
+    Please provide the Title and Coordinates in correct JSON format for the Design of a smiley face.
     The Coordinates should be given in the specific order you would want them executed.
     Make sure your design makes sense and would be legible.
     Make sure the design is legible by thinking step by step as you choose points.

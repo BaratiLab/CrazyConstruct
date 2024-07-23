@@ -40,9 +40,9 @@ Input params:
 '''
 def takeoff_go_to(commander, TAKEOFF_HEIGHT=0.5, TAKEOFF_VELOCITY=0.2):
     commander.take_off(TAKEOFF_HEIGHT, TAKEOFF_VELOCITY)
-    time.sleep(2)
+    time.sleep(0.5)
     commander.go_to(0,0,0.5)
-    time.sleep(2)
+    time.sleep(0.5)
 
 '''
 Defintion: Generates a random point and flies to the random point then sleeps there for 15 seconds.
@@ -78,11 +78,11 @@ Definition: This picks up the block and slowly lowers the drone
 '''
 def pickup_block(commander, block_location_set, block_location, block_set_velocity):
     commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2],0.1)
-    time.sleep(2)
-    commander.go_to(block_location[0],block_location[1],block_location[2], block_set_velocity)
-    time.sleep(3)
-    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2], block_set_velocity)
     time.sleep(1)
+    commander.go_to(block_location[0],block_location[1],block_location[2], block_set_velocity)
+    time.sleep(0.5)
+    commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2], block_set_velocity)
+    time.sleep(0.25)
 
 '''
 Definition: This drops of the block at a location
@@ -90,11 +90,11 @@ Definition: This drops of the block at a location
 '''
 def dropoff_block(commander, block_location_set, block_location, block_set_velocity):
     commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2],0.1)
-    time.sleep(2)
+    time.sleep(0.75)
     commander.go_to(block_location[0],block_location[1],block_location[2], block_set_velocity)
     time.sleep(1)
     commander.go_to(block_location_set[0],block_location_set[1],block_location_set[2], block_set_velocity)
-    time.sleep(1)
+    time.sleep(0.25)
 
 
 def move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities):
@@ -104,9 +104,9 @@ def move_block(commander, block_location_set, block_location, dropoff_location_s
         pickup_block(commander, block_location_set, block_location, flight_velocities[0])
         pickup_status = is_complete(pickup_status)
     #goto_randompoint(commander, flight_velocities[1])
-    commander.go_to(0.5,0,0.4,flight_velocities[1])
-    time.sleep(1)
+    commander.go_to(.22,0,0.4,flight_velocities[1])
+    time.sleep(0.5)
     while not dropoff_status:
         dropoff_block(commander, dropoff_location_set, dropoff_location, flight_velocities[0])
         dropoff_status = is_complete(dropoff_status)
-    time.sleep(2)
+    time.sleep(0.5)
