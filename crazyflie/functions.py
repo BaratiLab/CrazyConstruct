@@ -114,11 +114,13 @@ Please read all of the following instructions first.
 
 You will be asked to come up with the drop-off locations for the drone that create a specified design.
 The origin of the grid is [0,0] in the bottom left corner and the last point is [4,4] in the top right.
-The X axis goes from [0,0] to [4,0]. The Y axis goes from [0,0] to [0,4].
+The X axis goes from [0,0] to [4,0]. The Y axis goes from [0,0] to [0,4]. 
 
-Your Grid currently looks like this, where "o" is an empty spot and "x" is a spot that already contains a block:
+You can think of the grid of these points like the pixels of a tv screen, with your job being to decide which pixel to turn on. 
+The grid currently looks like this, where "o" is an empty spot (or off pixel) and "x" is a spot that already contains a block (or on pixel):
 
 {grid_representation}
+
 
 Any space marked with "x" has already been chosen and must be incorporated in the design you will create.
 If spaces are already marked with "x", consider how different orientations of your design can best utilize them. 
