@@ -116,7 +116,7 @@ You will be asked to come up with the drop-off locations for the drone that crea
 The origin of the grid is [0,0] in the bottom left corner and the last point is [4,4] in the top right.
 The X axis goes from [0,0] to [4,0]. The Y axis goes from [0,0] to [0,4]. 
 
-You can think of the grid of these points like the pixels of a tv screen, with your job being to decide which pixel to turn on. 
+You can think of the grid like the pixels of a tv screen, with your job being to decide which pixel to turn on.
 The grid currently looks like this, where "o" is an empty spot (or off pixel) and "x" is a spot that already contains a block (or on pixel):
 
 {grid_representation}
