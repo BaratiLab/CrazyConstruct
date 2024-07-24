@@ -97,48 +97,66 @@ def plot_coordinates(title, list_of_coordinates):
 
 
 
-
-def create_test_json_prompt(original_prompt, JSON_Output, correct_xy, desired_xy, actual_xy):
-    """
-    Creates a test JSON prompt based on the provided parameters.
-
-    :param original_prompt: The initial prompt provided to the model.
-    :param JSON_Output: The JSON response from the model to the initial prompt.
-    :param correct_xy: Coordinates where blocks were correctly placed.
-    :param desired_xy: Coordinates where a block was intended to be placed.
-    :param actual_xy: Coordinates where a block was actually placed.
-    :return: A formatted test JSON prompt string.
-    """
-    test_json_prompt = f"""
-You were previously provided the following prompt: 
-START PROMPT 
-{original_prompt} 
-END PROMPT
-
-Your response to this prompt was the following JSON: 
-START RESPONSE 
-{JSON_Output} 
-END RESPONSE
-
-While executing the coordinates that were previously provided, blocks were correctly placed at {correct_xy}.
-However, when trying to place a block at {desired_xy}, it was instead placed at {actual_xy}.
-
-This means there are currently blocks at {correct_xy} and {actual_xy}.
-
-You are now tasked with checking the design and recovering it if possible.
-
-If the design is recoverable by continuing with the current plan in a different order, then
-provide the coordinates where blocks still need to be placed in the JSON structure provided.
-
-If the design is not recoverable with the current plan, then try to recover it with a new layout that incorporates the already placed blocks. 
-A new layout might mean a different orientation of the design, such as turning the design or laterally shifting it, which is allowed if needed. 
-Note that any block that has already been placed cannot be removed and therefore must be used in any new designs.
-Make sure your design makes sense. If you do a redesign, then provide the coordinates where blocks still need to be placed in the JSON structure provided.
-
-Make sure to follow the instructions from the original prompt if needed.
-
-If the design is not recoverable at all, set the Title as "Design is not recoverable" and provide no Coordinates.
 """
-    return test_json_prompt
+Creates a prompt for designing a grid layout based on the current coordinates and requested design.
+
+:param current_coordinates: List of coordinates currently marked with 'x' (e.g., [[1, 2], [3, 4]])
+:param requested_design: Description of the design to be created (e.g., "An uppercase H")
+:return: String representation of the prompt
+"""
+def create_prompt(current_coordinates, requested_design):
+
+    grid_representation = create_grid_representation(grid_size=(5, 5), coordinates=current_coordinates)
+
+    prompt = f"""
+A drone is being used to place building blocks on a grid.
+Please read all of the following instructions first.
+
+You will be asked to come up with the drop-off locations for the drone that create a specified design.
+The origin of the grid is [0,0] in the bottom left corner and the last point is [4,4] in the top right.
+The X axis goes from [0,0] to [4,0]. The Y axis goes from [0,0] to [0,4].
+
+Your Grid currently looks like this, where "o" is an empty spot and "x" is a spot that already contains a block:
+
+{grid_representation}
+
+Any space marked with "x" has already been chosen and must be incorporated in the design you will create.
+If spaces are already marked with "x", consider how different orientations of your design can best utilize them. 
+This might mean you need to rotate or shift your chosen points to incorporate these existing blocks.
+
+Consider breaking your design into pieces and how you might make each piece. 
+Make sure these pieces then align with one another to create the design in a logical layout.
+
+Only Integer points are allowed.
+You can make the design in any orientation that makes sense with the already placed blocks. 
+Make sure none of your points exceed the [4,4] index limit. If they do, fix the design.
+Make sure the design is legible by thinking step by step as you choose points.
+Check the design before confirming it.
+If you find an error, retry and then recheck until you find no errors using a step by step approach.
+Provide the Title, Coordinates and your Reasoning in correct JSON format for the design.
+The Coordinates should be given in the specific order you would want them executed.
+Only return the JSON in the structure provided as it needs to be parsed with Python. Do not include any other text or symbols.
+
+Please use the following structure:
+
+{{
+    "Design": [
+        {{
+            "Title": "Title of Design",
+            "Coordinates": [
+                [x, y],
+                [x, y]
+            ],
+            "Reasoning": "Your textual reasoning here"
+      }}
+    ]
+}}
+
+You are being asked to design the following: {requested_design}
+Make your design now.
+"""
+    
+    return prompt
+
 
 
