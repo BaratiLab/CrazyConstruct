@@ -94,6 +94,9 @@ def create_prompt():
     """
     return prompt
 
+def recreate_prompt(actual_dropoff_gpt_coords, dropoff_coords, actual_dropoff_coords):
+    pass    
+
 def send_and_receive_prompt(client, prompt):
     # Send the request to OpenAI using the new ChatCompletion method
     response = client.chat.completions.create(

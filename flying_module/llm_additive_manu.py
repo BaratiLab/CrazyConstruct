@@ -55,6 +55,7 @@ def get_coords(design):
     return title, coordinates
 
 def build_design(commander, block_location_set_height, block_location_height, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities):
+    actual_dropoff_gpt_coords = []
     flying_utils_hardcode.takeoff_go_to(commander)
     print(drop_off_positions)
     for i in range(len(drop_off_positions)):
@@ -64,19 +65,36 @@ def build_design(commander, block_location_set_height, block_location_height, pi
         block_location = [pickup_location[0], -pickup_location[1], block_location_height]
         dropoff_location_set = [drone_position[0], drone_position[1], dropoff_set_height]
         dropoff_location = [drone_position[0], drone_position[1], dropoff_height]
-        flying_utils_hardcode.move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, flight_velocities)
+        correct_dropoff_status, dropoff_coords = flying_utils_hardcode.move_block(commander, block_location_set, block_location, dropoff_location_set, dropoff_location, drop_off_positions[i], flight_velocities)
+        actual_dropoff_gpt_coords.append(dropoff_coords)
+        if not correct_dropoff_status:
+            commander.go_to(.22,0,0.4,flight_velocities[1])
+            return False, actual_dropoff_gpt_coords, dropoff_coords, drop_off_positions[i]
     flying_utils_hardcode.land_ground(commander, LAND_VELOCITY)
+    return True, actual_dropoff_gpt_coords, dropoff_coords, drop_off_positions[i] 
 
 def prompt_and_build(commander, block_location_set, block_location, pickup_location_array, dropoff_set_height, dropoff_height, flight_velocities):
-    client = llm_manager.load_api_key()
-    prompt = llm_manager.create_prompt()
-    response_text = llm_manager.send_and_receive_prompt(client, prompt)
-    # Load JSON data
-    data = json.loads(response_text)
-    for design in data['Designs']:
-        title, drop_off_positions = get_coords(design)
-        print(title)
-        build_design(commander, block_location_set, block_location, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities)
+    design_status = False
+    first_time = True
+    while True:
+        client = llm_manager.load_api_key()
+        if first_time:
+            prompt = llm_manager.create_prompt()
+            response_text = llm_manager.send_and_receive_prompt(client, prompt)
+            first_time = False
+        else:
+            prompt = llm_manager.recreate_prompt(actual_dropoff_gpt_coords, dropoff_coords, actual_dropoff_coords)
+            response_text = llm_manager.send_and_receive_prompt(client, prompt)
+        # Load JSON data
+        data = json.loads(response_text)
+        for design in data['Designs']:
+            title, drop_off_positions = get_coords(design)
+            print(title)
+            design_status, actual_dropoff_gpt_coords, dropoff_coords, actual_dropoff_coords = build_design(commander, block_location_set, block_location, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities)
+            if not design_status:
+                break
+        if design_status:
+            break
 
 
 
