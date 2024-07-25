@@ -56,7 +56,6 @@ def get_coords(design):
 
 def build_design(commander, block_location_set_height, block_location_height, pickup_location_array, drop_off_positions, dropoff_set_height, dropoff_height, flight_velocities):
     actual_dropoff_gpt_coords = []
-    flying_utils_hardcode.takeoff_go_to(commander)
     print(drop_off_positions)
     for i in range(len(drop_off_positions)):
         drone_position = get_xy(drop_off_positions[i])
@@ -82,8 +81,9 @@ def prompt_and_build(commander, block_location_set, block_location, pickup_locat
             prompt = llm_manager.create_prompt()
             response_text = llm_manager.send_and_receive_prompt(client, prompt)
             first_time = False
+            flying_utils_hardcode.takeoff_go_to(commander)
         else:
-            prompt = llm_manager.recreate_prompt(actual_dropoff_gpt_coords, dropoff_coords, actual_dropoff_coords)
+            prompt = llm_manager.recreate_prompt(prompt, response_text, actual_dropoff_gpt_coords, dropoff_coords, actual_dropoff_coords)
             response_text = llm_manager.send_and_receive_prompt(client, prompt)
         # Load JSON data
         data = json.loads(response_text)
