@@ -14,7 +14,7 @@ def undistort_image(image, mtx, dist, new_camera_mtx, roi):
     return undistorted_img[y:y+h, x:x+w]
 
 # Function to detect AprilTags and identify the origin and build plate corners
-def detect_tags(image):
+def detect_tags(image, detector):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     results = detector.detect(gray)
     
@@ -59,16 +59,40 @@ def find_build_plate(tags, origin_id, bottom_left_id, origin_tag_size, build_pla
         rvec_origin, tvec_origin = estimate_tag_pose(origin_tag, origin_tag_size, mtx, dist)
         rvec_bl, tvec_bl = estimate_tag_pose(bottom_left_tag, build_plate_tag_size, mtx, dist)
         
-        # Calculate the relative position
+        # Calculate the relative position in 2D (ignoring z)
         relative_position = tvec_bl - tvec_origin
-        relative_position = relative_position*100
+        relative_position_2d = relative_position[:2]  # Only x and y
         
-        return relative_position, rvec_bl
+        # Calculate the relative rotation (optional, if you need orientation)
+        R_origin, _ = cv2.Rodrigues(rvec_origin)
+        R_bl, _ = cv2.Rodrigues(rvec_bl)
+        relative_rotation = R_bl @ R_origin.T
+        
+        return relative_position_2d, relative_rotation, tvec_bl, R_bl
     else:
         raise ValueError("Required tags not found in the image")
 
+# Function to compute the bottom-left corner of the pad
+def compute_bottom_left_corner(tvec_bl, R, tag_size):
+    # Define the local coordinates of the top-right corner of the AprilTag relative to its center
+    bottom_left_corner_local = np.array([(tag_size / 2)+0.005, (tag_size / 2)+0.005, 0])
+    
+    # Compute the global coordinates of the top-right corner
+    bottom_left_corner_global = tvec_bl + R @ bottom_left_corner_local
+    
+    # Define the local offset from the top-right corner to the bottom-left corner of the pad
+    #pad_offset = np.array([0, -tag_size, 0])
+    
+    # Compute the global coordinates of the bottom-left corner of the pad
+    #bottom_left_corner_global = top_right_corner_global + R_bl @ pad_offset
+    
+    return bottom_left_corner_global[:2]  # Only x and y
+
 # Main function to process the image and find the build plate position
 def main():
+    # Create the AprilTag detector
+    options = apriltag.DetectorOptions(families="tag36h11")
+    detector = apriltag.Detector(options)
     # Open the video stream from the USB camera
     cap = cv2.VideoCapture(0)
 
@@ -101,15 +125,18 @@ def main():
             break
         undistorted_image = undistort_image(frame, mtx, dist, new_camera_mtx, roi)
         # Detect AprilTags
-        tags = detect_tags(undistorted_image)
+        tags = detect_tags(undistorted_image, detector)
     
     
         # Find the build plate position and orientation
         try:
-            relative_position, rvec_bl = find_build_plate(tags, origin_id, bottom_left_id, origin_tag_size, build_plate_tag_size, mtx, dist)
-            print(f"Build Plate Position (relative to origin): {relative_position}")
-            rotation_matrix, _ = cv2.Rodrigues(rvec_bl)
-            print(f"Rotation Matrix of Bottom Left Tag: \n{rotation_matrix}")
+            relative_position_2d, relative_rotation = find_build_plate(tags, origin_id, bottom_left_id, origin_tag_size, build_plate_tag_size, mtx, dist)
+            print(f"Build Plate Position (relative to origin) in 2D: {relative_position_2d}")
+            print(f"Relative Rotation Matrix: \n{relative_rotation}")
+            
+            # Compute the bottom-left corner of the pad
+            bottom_left_corner = compute_bottom_left_corner(relative_position_2d, relative_rotation, build_plate_tag_size)
+            print(f"Bottom-left corner of the pad: {bottom_left_corner}")
         except ValueError as e:
             print(e)
 
@@ -130,10 +157,9 @@ def main():
     # Release the video capture object and close display windows
     cap.release()
     cv2.destroyAllWindows()
+    bottom_left_corner = bottom_left_corner*1000
+    return bottom_left_corner, relative_rotation
 
 
 if __name__ == "__main__":
-    # Create the AprilTag detector
-    options = apriltag.DetectorOptions(families="tag36h11")
-    detector = apriltag.Detector(options)
     main()
