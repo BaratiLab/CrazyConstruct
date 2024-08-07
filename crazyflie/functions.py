@@ -188,7 +188,7 @@ Provide the Title, New Coordinates, Existing Coordinates and your Reasoning in c
 The Coordinates should be given in the specific order you would want them executed.
 Only return JSON in the structure provided as it needs to be parsed with Python. Do not include any other text or symbols.
 
-Please use the following JSON structure:
+Please use the following JSON schema:
 
 {{
     "Design": [
