@@ -6,10 +6,9 @@ The following imports are needed for the functions contained in this file.
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
-
-
-
+grid_value = 10
 #Functions
 
 """
@@ -22,7 +21,7 @@ Includes labels for the y-axis on the left and the x-axis at the bottom.
                     If None, all positions will be marked with 'o'.
 :return: String representation of the grid with axis labels
 """
-def create_grid_representation(grid_size=(5, 5), coordinates=None):
+def create_grid_representation(grid_size=(grid_value, grid_value), coordinates=None):
     # If coordinates is None, initialize it as an empty list
     if coordinates is None:
         coordinates = []
@@ -57,7 +56,7 @@ param title: Title of the design
 param list_of_coordinates: list of coordinates that needs to be plotted
 '''
 def plot_coordinates(title, list_of_coordinates):
-    grid_size = 5  # Define the grid size
+    grid_size = grid_value  # Define the grid size
     
     # Create the grid with default color value (e.g., 0)
     grid = np.zeros((grid_size, grid_size))
@@ -96,6 +95,60 @@ def plot_coordinates(title, list_of_coordinates):
     plt.show()
 
 
+'''Same plotting function but for saving instead'''
+
+def save_plot_coordinates(title, list_of_coordinates, filename=None, folder=None):
+    if filename is None:
+        raise ValueError("No filename given. Please provide a filename to save the plot.")
+        
+    if folder:
+        # Create the folder if it doesn't exist
+        os.makedirs(folder, exist_ok=True)
+        # Combine the folder path with the filename
+        filepath = os.path.join(folder, filename)
+    else:
+        filepath = filename
+
+    
+    grid_size = grid_value  # Define the grid size
+    
+    # Create the grid with default color value (e.g., 0)
+    grid = np.zeros((grid_size, grid_size))
+    
+    # Set the color value for the selected coordinates (e.g., 1)
+    for x, y in list_of_coordinates:
+        grid[y][x] = 1  # Note: row and col are switched here
+    
+    fig, ax = plt.subplots()
+    cax = ax.matshow(grid, cmap='plasma', origin='lower')
+    
+    # Move the x-axis to the bottom
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_label_position('bottom')
+    
+    # Set ticks and labels
+    ax.set_xticks(range(grid_size))
+    ax.set_yticks(range(grid_size))
+    ax.set_xticklabels(range(grid_size))
+    ax.set_yticklabels(range(grid_size))
+    
+    # Add red dots on points not selected
+    for y in range(grid_size):
+        for x in range(grid_size):
+            if grid[y][x] == 0:
+                ax.plot(x, y, 'ro')  # Plot red dots for unselected points
+    
+    # Add X on the points that are selected
+    for y in range(grid_size):
+        for x in range(grid_size):
+            if grid[y][x] == 1:
+                ax.text(x, y, 'X', va='center', ha='center', color='Black', weight='bold')
+    
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(filepath)  # Save the plot if filename is provided
+    plt.close()
+
 
 """
 Creates a prompt for designing a grid layout based on the current coordinates and requested design.
@@ -106,46 +159,46 @@ Creates a prompt for designing a grid layout based on the current coordinates an
 """
 def create_prompt(current_coordinates, requested_design):
 
-    grid_representation = create_grid_representation(grid_size=(5, 5), coordinates=current_coordinates)
+    grid_representation = create_grid_representation(grid_size=(grid_value, grid_value), coordinates=current_coordinates)
 
     prompt = f"""
 A drone is being used to place building blocks on a grid.
 Please read all of the following instructions first.
 
 You will be asked to come up with the drop-off locations for the drone that create a specified design.
-The origin of the grid is [0,0] in the bottom left corner and the last point is [4,4] in the top right.
-The X axis goes from [0,0] to [4,0]. The Y axis goes from [0,0] to [0,4]. 
+The origin of the grid is [0,0] in the bottom left corner and the last point is [{grid_value - 1}, {grid_value - 1}] in the top right.
+The X axis goes from [0,0] to [{grid_value - 1},0]. The Y axis goes from [0,0] to [0,{grid_value - 1}]. 
 
 You can think of the grid like the pixels of a tv screen, with your job being to decide which pixel to turn on.
-The grid currently looks like this, where "o" is an empty spot (or off pixel) and "x" is a spot that already contains a block (or on pixel):
+The grid currently looks as follows, where "o" is an empty spot (or off pixel) and "x" is a spot that has a existing block (or on pixel):
 
 {grid_representation}
 
 
-Any space marked with "x" has already been chosen and must be incorporated in the design you will create.
-If spaces are already marked with "x", consider how different orientations of your design can best utilize them. 
-This might mean you need to rotate or shift your chosen points to incorporate these existing blocks.
-
-Consider breaking your design into pieces and how you might make each piece. 
+Any existing points marked with "x" has already been chosen and must be incorporated in the design you will create. 
 Make sure these pieces then align with one another to create the design in a logical layout.
 
 Only Integer points are allowed.
 You can make the design in any orientation that makes sense with the already placed blocks. 
-Make sure none of your points exceed the [4,4] index limit. If they do, fix the design.
+Make sure none of your points exceed the [{grid_value - 1},{grid_value - 1}] index limit. If they do, fix the design.
 Make sure the design is legible by thinking step by step as you choose points.
 Check the design before confirming it.
 If you find an error, retry and then recheck until you find no errors using a step by step approach.
-Provide the Title, Coordinates and your Reasoning in correct JSON format for the design.
+Provide the Title, New Coordinates, Existing Coordinates and your Reasoning in correct JSON format for the design.
 The Coordinates should be given in the specific order you would want them executed.
-Only return the JSON in the structure provided as it needs to be parsed with Python. Do not include any other text or symbols.
+Only return JSON in the structure provided as it needs to be parsed with Python. Do not include any other text or symbols.
 
-Please use the following structure:
+Please use the following JSON structure:
 
 {{
     "Design": [
         {{
             "Title": "Title of Design",
-            "Coordinates": [
+            "New Coordinates": [
+                [x, y],
+                [x, y]
+            ],
+            "Exisiting Coordinates": [
                 [x, y],
                 [x, y]
             ],
@@ -155,10 +208,27 @@ Please use the following structure:
 }}
 
 You are being asked to design the following: {requested_design}
+Think step-by-step.
 Make your design now.
 """
     
     return prompt
 
-
-
+def get_shapes():
+    common_shapes = [
+    "Square",
+    "Rectangle",
+    "Circle",
+    "Triangle (Equilateral)",
+    "Triangle (Isosceles)",
+    "Triangle (Right-Angle)",
+    "Diamond",
+    "Cross",
+    "Plus Sign",
+    "Arrow",
+    "Star",
+    "Heart",
+    "Crescent",
+    "Zigzag",
+    ]
+    return common_shapes
