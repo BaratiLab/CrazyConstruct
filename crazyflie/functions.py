@@ -150,7 +150,7 @@ def plot_coordinates_2(title, list_of_coordinates, list_of_current_coordinates, 
             full_path = os.path.join(folder_path, filename)
         else:
             full_path = filename
-        plt.savefig(full_path)
+        plt.savefig(full_path, bbox_inches='tight', pad_inches=0)
 
     # Now show the figure
     plt.show()
@@ -373,3 +373,74 @@ def plot_coordinates_3(title, list_of_coordinates, list_of_current_coordinates, 
     plt.grid(True)
     plt.show()
 
+
+
+
+
+
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+def plot_correct_coordinates(title, list_of_coordinates, list_of_current_coordinates, figure_text, grid_value=10, save=False, folder_path=None):
+    grid_size = grid_value  # Define the grid size
+    
+    # Create the grid with default color value (e.g., 0)
+    grid = np.zeros((grid_size, grid_size))
+    current_grid = np.zeros((grid_size, grid_size))  # Grid for current coordinates
+    
+    # Set the color value for the selected coordinates (e.g., 1)
+    for x, y in list_of_coordinates:
+        grid[y][x] = 1  # Note: row and col are switched here
+
+    for x, y in list_of_current_coordinates:
+        current_grid[y][x] = 1  # Note: row and col are switched here
+        
+    fig, ax = plt.subplots()
+    ax.matshow(grid, cmap='plasma', origin='lower', alpha=0.5)  # Background for selected coordinates
+    ax.matshow(current_grid, cmap='cool', origin='lower', alpha=0.5)  # Overlay for current coordinates
+    
+    # Remove the axis labels, ticks, and spines
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
+    # Add red dots on points not selected
+    for y in range(grid_size):
+        for x in range(grid_size):
+            if grid[y][x] == 0 and current_grid[y][x] == 0:
+                ax.plot(x, y, 'ro')  # Plot red dots for unselected points
+    
+    # Add X on the points that are selected
+    for x, y in list_of_coordinates:
+        ax.text(x, y, 'X', va='center', ha='center', color='black', weight='bold')
+    
+    # Add O on the points that are current coordinates
+    for x, y in list_of_current_coordinates:
+        ax.text(x, y, 'O', va='center', ha='center', color='blue', weight='bold')
+    
+    # Remove the title and figure text if not needed
+    plt.title('')  # Remove title
+    plt.figtext(0.5, -0.1, '', ha="center", fontsize=9)  # Remove figure text
+
+    # Remove the grid if not needed
+    plt.grid(False)
+
+    if save:
+        filename = input("Enter the filename to save the figure: ")
+        if folder_path:
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)  # Create the folder if it doesn't exist
+            full_path = os.path.join(folder_path, filename)
+        else:
+            full_path = filename
+        plt.savefig(full_path, bbox_inches='tight', pad_inches=0.1)  # Save with minimal padding
+
+    # Show the figure
+    plt.show()
