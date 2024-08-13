@@ -95,6 +95,69 @@ def plot_coordinates(title, list_of_coordinates):
     plt.show()
 
 
+
+def plot_coordinates_2(title, list_of_coordinates, list_of_current_coordinates, figure_text, grid_value=10, save=False, folder_path=None):
+    grid_size = grid_value  # Define the grid size
+    
+    # Create the grid with default color value (e.g., 0)
+    grid = np.zeros((grid_size, grid_size))
+    current_grid = np.zeros((grid_size, grid_size))  # Grid for current coordinates
+    
+    # Set the color value for the selected coordinates (e.g., 1)
+    for x, y in list_of_coordinates:
+        grid[y][x] = 1  # Note: row and col are switched here
+
+    for x, y in list_of_current_coordinates:
+        current_grid[y][x] = 1  # Note: row and col are switched here
+        
+    fig, ax = plt.subplots()
+    ax.matshow(grid, cmap='plasma', origin='lower', alpha=0.5)  # Background for selected coordinates
+    ax.matshow(current_grid, cmap='cool', origin='lower', alpha=0.5)  # Overlay for current coordinates
+    
+    # Move the x-axis to the bottom
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_label_position('bottom')
+    
+    # Set ticks and labels
+    ax.set_xticks(range(grid_size))
+    ax.set_yticks(range(grid_size))
+    ax.set_xticklabels(range(grid_size))
+    ax.set_yticklabels(range(grid_size))
+    
+    # Add red dots on points not selected
+    for y in range(grid_size):
+        for x in range(grid_size):
+            if grid[y][x] == 0 and current_grid[y][x] == 0:
+                ax.plot(x, y, 'ro')  # Plot red dots for unselected points
+    
+    # Add X on the points that are selected
+    for x, y in list_of_coordinates:
+        ax.text(x, y, 'X', va='center', ha='center', color='black', weight='bold')
+    
+    # Add O on the points that are current coordinates
+    for x, y in list_of_current_coordinates:
+        ax.text(x, y, 'O', va='center', ha='center', color='blue', weight='bold')
+    
+    plt.title(title)
+    plt.figtext(0.5, -0.1, figure_text, ha="center", fontsize=9)
+    plt.grid(True)
+
+    if save:
+        filename = input("Enter the filename to save the figure: ")
+        if folder_path:
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)  # Create the folder if it doesn't exist
+            full_path = os.path.join(folder_path, filename)
+        else:
+            full_path = filename
+        plt.savefig(full_path)
+
+    # Now show the figure
+    plt.show()
+    
+
+
+
 '''Same plotting function but for saving instead'''
 
 def save_plot_coordinates(title, list_of_coordinates, filename=None, folder=None):
@@ -216,6 +279,7 @@ Make your design now.
 
 def get_shapes():
     common_shapes = [
+    "donut",
     "circle",
     "square",
     "triangle",
@@ -240,7 +304,6 @@ def get_shapes():
     "scalene triangle",
     "right triangle",
     "semi-circle",
-    "donut",
     "figure-eight",
     "regular pentagram",
     "regular hexagram",
@@ -254,3 +317,59 @@ def get_shapes():
     "leaf shape"
 ]
     return common_shapes
+
+
+
+def plot_coordinates_3(title, list_of_coordinates, list_of_current_coordinates, grid_value=10):
+    grid_size = grid_value  # Define the grid size
+    
+    # Create the grid for background (teal/green)
+    grid = np.zeros((grid_size, grid_size))
+    for x, y in list_of_coordinates:
+        grid[y][x] = 1  # Mark the selected coordinates
+    
+    # Create grids for different categories
+    new_coords_grid = np.zeros((grid_size, grid_size))
+    current_coords_grid = np.zeros((grid_size, grid_size))
+    
+    # Populate grids based on the coordinates
+    for x, y in list_of_coordinates:
+        new_coords_grid[y][x] = 1  # Mark new coordinates
+    
+    for x, y in list_of_current_coordinates:
+        current_coords_grid[y][x] = 1  # Mark current coordinates
+    
+    fig, ax = plt.subplots()
+    
+    # Plot the background grid with a color (teal/green)
+    ax.matshow(grid, cmap='Greens', origin='lower', alpha=0.5)
+    
+    # Overlay the new coordinates with a different color
+    if np.any(new_coords_grid):  # Check if there are new coordinates to plot
+        ax.matshow(new_coords_grid, cmap='Reds', origin='lower', alpha=0.8)
+    
+    # Overlay the current coordinates with another color
+    if np.any(current_coords_grid):  # Check if there are current coordinates to plot
+        ax.matshow(current_coords_grid, cmap='Blues', origin='lower', alpha=0.7)
+    
+    # Move the x-axis to the bottom
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_label_position('bottom')
+    
+    # Set ticks and labels
+    ax.set_xticks(range(grid_size))
+    ax.set_yticks(range(grid_size))
+    ax.set_xticklabels(range(grid_size))
+    ax.set_yticklabels(range(grid_size))
+    
+    # Add X on the points that are selected
+    for x, y in list_of_coordinates:
+        ax.text(x, y, 'X', va='center', ha='center', color='black', weight='bold')
+    
+    # Add legend
+    ax.legend()
+    
+    plt.title(title)
+    plt.grid(True)
+    plt.show()
+
